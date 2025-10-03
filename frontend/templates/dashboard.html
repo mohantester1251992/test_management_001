@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Spectra{% endblock %}
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="card p-6 lg:col-span-2">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold">Projects</h2>
+      <a href="{% url 'projects:create' %}" class="button-primary text-sm">New Project</a>
+    </div>
+    {% if projects %}
+      <div class="grid gap-4 md:grid-cols-2">
+        {% for project in projects %}
+          <a href="{% url 'projects:detail' project.organization.slug project.slug %}" class="card p-4 space-y-2 hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-semibold">{{ project.name }}</h3>
+              <span class="badge">{{ project.organization.name }}</span>
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{{ project.description|default:"No description yet" }}</p>
+            <div class="flex items-center gap-4 text-xs text-slate-400">
+              <span>{{ project.environments.count }} environments</span>
+              <span>{{ project.test_cases.count }} tests</span>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="border border-dashed border-slate-300 rounded-2xl p-10 text-center space-y-2">
+        <h3 class="text-lg font-semibold">Create your first project</h3>
+        <p class="text-slate-500">Projects help you organize tests, suites, and environments.</p>
+        <a href="{% url 'projects:create' %}" class="button-primary">Start building</a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold">Recent runs</h2>
+      <a href="#" class="text-sm text-indigo-500">View all</a>
+    </div>
+    <div class="space-y-4">
+      {% for run in recent_runs %}
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full {% if run.status == 'passed' %}bg-emerald-500{% elif run.status == 'failed' %}bg-rose-500{% else %}bg-amber-500{% endif %}"></span>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Suite {{ run.suite.name if run.suite }} <span class="text-slate-400">#{{ run.id }}</span></p>
+            <p class="text-xs text-slate-500">{{ run.created_at|date:"M j, H:i" }} • {{ run.summary.total|default:0 }} tests</p>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-sm text-slate-500">No runs yet. Trigger a suite to see activity.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

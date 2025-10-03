@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Suites · {{ project.name }}{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-semibold">Suites</h1>
+    <p class="text-slate-500">Group tests into orchestrated runs with scheduling and notifications.</p>
+  </div>
+  <a href="{% url 'suites:create' project.organization.slug project.slug %}" class="button-primary">New suite</a>
+</div>
+<div class="grid gap-6 mt-6">
+  {% for suite in suites %}
+    <a href="{% url 'suites:detail' project.organization.slug project.slug suite.slug %}" class="card p-5 space-y-3 hover:-translate-y-1 transition">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">{{ suite.name }}</h2>
+        <span class="badge">{{ suite.parallelism }} parallel</span>
+      </div>
+      <p class="text-sm text-slate-500">{{ suite.description|default:"No description" }}</p>
+      <div class="flex items-center gap-3 text-xs text-slate-400">
+        <span>{{ suite.suite_tests.count }} tests</span>
+        <span>{{ suite.active_schedules.count }} schedules</span>
+      </div>
+    </a>
+  {% empty %}
+    <div class="card p-10 text-center">
+      <h2 class="text-xl font-semibold mb-2">No suites yet</h2>
+      <p class="text-slate-500">Suites let you orchestrate parallel runs and retries.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

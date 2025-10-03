@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ suite.name }} · Suites{% endblock %}
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="card p-6 lg:col-span-2 space-y-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold">{{ suite.name }}</h1>
+        <p class="text-slate-500">{{ suite.description|default:"Run resilient suites with retries and parallelism." }}</p>
+      </div>
+      <form method="post" action="{% url 'suites:add-test' project.organization.slug project.slug suite.slug %}" class="flex gap-3">
+        {% csrf_token %}
+        <select name="test_case" class="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2">
+          {% for test in tests %}
+            <option value="{{ test.id }}">{{ test.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="button-primary text-sm">Add test</button>
+      </form>
+    </div>
+    <div class="space-y-3">
+      {% for suite_test in suite.suite_tests.all %}
+        <div class="card p-4 flex items-center justify-between">
+          <div>
+            <p class="font-semibold">{{ suite_test.test_case.name }}</p>
+            <p class="text-xs text-slate-500">Dataset: {{ suite_test.dataset.name|default:"Default" }}</p>
+          </div>
+          <span class="badge">Order {{ suite_test.order }}</span>
+        </div>
+      {% empty %}
+        <div class="border border-dashed border-slate-300 rounded-2xl p-6 text-center text-sm text-slate-500">
+          Add tests to this suite to orchestrate end-to-end coverage.
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  <aside class="space-y-4">
+    <div class="card p-6 space-y-3">
+      <h2 class="text-lg font-semibold">Schedules</h2>
+      <div class="space-y-3">
+        {% for schedule in suite.schedules.all %}
+          <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3">
+            <p class="text-sm font-medium">{{ schedule.human_readable|default:schedule.cron }}</p>
+            <p class="text-xs text-slate-500">Next run {{ schedule.next_run_at|default:"TBD" }}</p>
+          </div>
+        {% empty %}
+          <p class="text-sm text-slate-500">No schedules yet. Automate by adding one below.</p>
+        {% endfor %}
+      </div>
+      <form method="post" action="{% url 'suites:schedule-create' project.organization.slug project.slug suite.slug %}" class="space-y-3">
+        {% csrf_token %}
+        {{ schedule_form.cron }}
+        {{ schedule_form.timezone }}
+        {{ schedule_form.human_readable }}
+        <label class="inline-flex items-center gap-2 text-sm">{{ schedule_form.is_active }} Active</label>
+        <button class="button-primary text-sm">Save schedule</button>
+      </form>
+    </div>
+    <div class="card p-6 space-y-3">
+      <h2 class="text-lg font-semibold">Execution policy</h2>
+      <dl class="space-y-2 text-sm text-slate-500">
+        <div class="flex justify-between"><dt>Retries</dt><dd>{{ suite.retries }}</dd></div>
+        <div class="flex justify-between"><dt>Parallelism</dt><dd>{{ suite.parallelism }}</dd></div>
+        <div class="flex justify-between"><dt>Environment</dt><dd>{{ suite.default_environment.name|default:"Project default" }}</dd></div>
+      </dl>
+    </div>
+  </aside>
+</div>
+{% endblock %}

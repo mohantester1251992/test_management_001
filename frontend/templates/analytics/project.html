@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Analytics · {{ project.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold">Analytics</h1>
+      <p class="text-slate-500">Monitor pass rates, duration trends, and flaky tests.</p>
+    </div>
+  </div>
+  <div class="grid gap-6 md:grid-cols-3">
+    {% for status in status_counts %}
+      <div class="card p-6">
+        <p class="text-sm text-slate-500 uppercase tracking-wide">{{ status.status|title }}</p>
+        <p class="text-3xl font-semibold">{{ status.total }}</p>
+      </div>
+    {% empty %}
+      <div class="card p-6 col-span-full">
+        <p class="text-sm text-slate-500">No runs yet. Execute a suite to populate analytics.</p>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="card p-6 space-y-4">
+    <h2 class="text-lg font-semibold">Most flaky tests</h2>
+    <div class="space-y-3">
+      {% for test in flaky_tests %}
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-medium">{{ test.name }}</p>
+            <p class="text-xs text-slate-500">{{ test.failure_count }} failures</p>
+          </div>
+          <a href="{% url 'testcases:detail' project.organization.slug project.slug test.slug %}" class="text-sm text-indigo-500">Inspect</a>
+        </div>
+      {% empty %}
+        <p class="text-sm text-slate-500">No flaky tests detected. Great job!</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

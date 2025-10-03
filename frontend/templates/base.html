@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ theme_preference }}" class="h-full {% if theme_preference == 'dark' %}dark{% endif %}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}UI Automation Platform{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.10/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.css">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="h-full bg-slate-50 text-slate-900 {% if theme_preference == 'dark' %}dark{% endif %}" x-data="{ sidebar: false }">
+  <style>
+    body.dark {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    body.dark .button-secondary {
+      color: #e2e8f0;
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(71, 85, 105, 0.6);
+    }
+    body.dark .button-secondary:hover {
+      background: rgba(51, 65, 85, 0.6);
+    }
+    body.dark .badge {
+      background: rgba(99, 102, 241, 0.25);
+      color: #c7d2fe;
+    }
+  </style>
+  <div class="min-h-full flex">
+    <aside class="w-64 bg-white/80 dark:bg-slate-800/80 backdrop-blur border-r border-slate-200 dark:border-slate-700 hidden md:block">
+      <div class="p-6 space-y-6">
+        <div>
+          <h1 class="text-xl font-semibold">Spectra</h1>
+          <p class="text-sm text-slate-500">UI automation control center</p>
+        </div>
+        <nav class="space-y-2">
+          <a href="{% url 'accounts:dashboard' %}" class="nav-link">Dashboard</a>
+          <a href="{% url 'projects:list' %}" class="nav-link">Projects</a>
+        </nav>
+      </div>
+    </aside>
+    <main class="flex-1">
+      <header class="flex items-center justify-between px-6 py-4 bg-white/70 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-700 backdrop-blur">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden" @click="sidebar = !sidebar">
+            <i class="lucide lucide-menu"></i>
+          </button>
+          <div class="relative">
+            <input type="search" placeholder="Search…" class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <form method="post" action="{% url 'accounts:theme-toggle' %}" class="flex items-center gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="theme" value="{% if theme_preference == 'dark' %}light{% else %}dark{% endif %}">
+            <button class="rounded-full px-3 py-1 text-sm border border-slate-200 dark:border-slate-600">
+              {% if theme_preference == 'dark' %}Light Mode{% else %}Dark Mode{% endif %}
+            </button>
+          </form>
+          <div class="flex items-center gap-2">
+            <span class="text-sm">{{ request.user.get_short_name }}</span>
+            <div class="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm uppercase">{{ request.user.get_short_name|default:'U'|first }}</div>
+          </div>
+        </div>
+      </header>
+      <div class="px-6 py-8 space-y-6">
+        {% if messages %}
+          <div class="toast-stack">
+            {% for message in messages %}
+              <div class="toast">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  <script>
+    document.querySelectorAll('.nav-link').forEach(link => {
+      if (link.href === window.location.href) {
+        link.classList.add('bg-indigo-500/10','text-indigo-600','dark:text-indigo-300');
+      } else {
+        link.classList.add('text-slate-600','dark:text-slate-300','hover:bg-slate-100/70','dark:hover:bg-slate-800/70','rounded-lg','px-3','py-2','flex','items-center','gap-2','transition');
+      }
+    });
+  </script>
+</body>
+</html>

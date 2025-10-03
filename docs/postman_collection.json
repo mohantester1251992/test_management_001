@@ -1,0 +1,26 @@
+{
+  "info": {
+    "name": "Spectra API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <token>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/projects/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", ""]
+        }
+      }
+    }
+  ]
+}
