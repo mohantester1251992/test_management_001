@@ -1,0 +1,27 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+exclude = [
+    "migrations",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = ["migrations"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backend.settings.local"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--ds=backend.settings.local --reuse-db"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_configs = true
+plugins = []
+exclude = ["migrations"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

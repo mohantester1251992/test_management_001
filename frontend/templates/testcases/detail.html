@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ test_case.name }} · Designer{% endblock %}
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="card p-6 lg:col-span-2 space-y-4" x-data="{ tab: 'steps' }">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold">{{ test_case.name }}</h1>
+        <p class="text-slate-500">{{ test_case.description|default:"Add a helpful summary for collaborators." }}</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="button-secondary" @click="tab = 'steps'">Steps</button>
+        <button class="button-secondary" @click="tab = 'preview'">Preview</button>
+      </div>
+    </div>
+    <div x-show="tab === 'steps'" class="space-y-4">
+      <form method="post" action="{% url 'testcases:step-add' project.organization.slug project.slug test_case.slug %}" class="card p-4 space-y-4">
+        {% csrf_token %}
+        <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Add step</h2>
+        <div class="grid gap-4 md:grid-cols-2">
+          {{ step_form.order }}
+          {{ step_form.action }}
+          {{ step_form.locator }}
+          {{ step_form.parameters }}
+          {{ step_form.assertion }}
+        </div>
+        <button class="button-primary text-sm">Add step</button>
+      </form>
+      <ol class="space-y-3">
+        {% for step in test_case.steps.all %}
+          <li class="card p-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="badge">Step {{ step.order }}</span>
+              <span class="text-xs text-slate-400">{{ step.action|title }}</span>
+            </div>
+            <pre class="text-xs text-slate-500 bg-slate-900/5 dark:bg-slate-800/60 rounded-lg p-3 overflow-x-auto">{{ step.parameters|json_script:"params" }}{{ step.parameters }}</pre>
+          </li>
+        {% empty %}
+          <li class="border border-dashed border-slate-300 rounded-2xl p-6 text-center text-sm text-slate-500">
+            Drag & drop steps here or use quick add to assemble your flow.
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+    <div x-show="tab === 'preview'" class="space-y-4" x-cloak>
+      <div class="border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+        <h2 class="text-lg font-semibold mb-3">Live preview</h2>
+        <p class="text-sm text-slate-500">Connect a browser worker to see locator health and DOM snapshots in real-time.</p>
+      </div>
+    </div>
+  </section>
+  <aside class="space-y-4">
+    <div class="card p-6 space-y-3">
+      <h2 class="text-lg font-semibold">Meta</h2>
+      <dl class="space-y-2 text-sm text-slate-500">
+        <div class="flex justify-between"><dt>Status</dt><dd>{{ test_case.is_active|yesno:"Active,Inactive" }}</dd></div>
+        <div class="flex justify-between"><dt>Duration</dt><dd>{{ test_case.estimated_duration }}s</dd></div>
+        <div class="flex justify-between"><dt>Steps</dt><dd>{{ test_case.steps.count }}</dd></div>
+      </dl>
+    </div>
+    <div class="card p-6 space-y-3">
+      <h2 class="text-lg font-semibold">Datasets</h2>
+      <p class="text-sm text-slate-500">Link structured data rows for parameterized runs.</p>
+      <a href="{% url 'testcases:datasets' project.organization.slug project.slug %}" class="button-secondary text-sm">Manage datasets</a>
+    </div>
+  </aside>
+</div>
+{% endblock %}

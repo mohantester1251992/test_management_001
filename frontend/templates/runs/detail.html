@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Run #{{ run.id }}{% endblock %}
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="card p-6 lg:col-span-2 space-y-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold">Run #{{ run.id }}</h1>
+        <p class="text-slate-500">Suite {{ run.suite.name if run.suite }} · {{ run.created_at|date:"M j, H:i" }}</p>
+      </div>
+      <span class="badge {{ run.status }}">{{ run.get_status_display }}</span>
+    </div>
+    <div class="space-y-4">
+      {% for step in run.steps.all %}
+        <div class="card p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="badge">Step {{ step.order }}</span>
+              <span class="text-sm font-medium">{{ step.test_case.name }}</span>
+            </div>
+            <span class="text-xs text-slate-400">{{ step.status|title }}</span>
+          </div>
+          <pre class="text-xs text-slate-500 bg-slate-900/5 dark:bg-slate-800/60 rounded-lg p-3 overflow-x-auto">{{ step.log }}</pre>
+          {% if step.screenshot %}
+            <img src="{{ step.screenshot.url }}" class="rounded-lg border border-slate-200" alt="Screenshot" />
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="border border-dashed border-slate-300 rounded-2xl p-6 text-center text-sm text-slate-500">This run has no recorded steps yet. Check worker connectivity.</div>
+      {% endfor %}
+    </div>
+  </section>
+  <aside class="space-y-4">
+    <div class="card p-6 space-y-3">
+      <h2 class="text-lg font-semibold">Summary</h2>
+      <dl class="space-y-2 text-sm text-slate-500">
+        <div class="flex justify-between"><dt>Status</dt><dd>{{ run.get_status_display }}</dd></div>
+        <div class="flex justify-between"><dt>Duration</dt><dd>{{ run.total_duration|default:"--" }}s</dd></div>
+        <div class="flex justify-between"><dt>Environment</dt><dd>{{ run.environment.name|default:"Default" }}</dd></div>
+        <div class="flex justify-between"><dt>Triggered by</dt><dd>{{ run.triggered_by.get_full_name|default:"System" }}</dd></div>
+      </dl>
+    </div>
+    <div class="card p-6 space-y-3">
+      <h2 class="text-lg font-semibold">Logs</h2>
+      <div class="space-y-2 max-h-60 overflow-auto">
+        {% for log in run.logs.all %}
+          <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3">
+            <p class="text-xs text-slate-400">{{ log.created_at|date:"H:i:s" }} · {{ log.level|upper }}</p>
+            <p class="text-sm">{{ log.message }}</p>
+          </div>
+        {% empty %}
+          <p class="text-sm text-slate-500">No logs yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

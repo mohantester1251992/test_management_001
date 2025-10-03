@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Tests · {{ project.name }}{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-semibold">Tests</h1>
+    <p class="text-slate-500">Design end-to-end flows with reusable steps and assertions.</p>
+  </div>
+  <a href="{% url 'testcases:create' project.organization.slug project.slug %}" class="button-primary">New test</a>
+</div>
+<div class="grid gap-6 mt-6 md:grid-cols-2">
+  {% for test_case in test_cases %}
+    <a href="{% url 'testcases:detail' project.organization.slug project.slug test_case.slug %}" class="card p-5 space-y-3 hover:-translate-y-1 transition">
+      <h2 class="text-lg font-semibold">{{ test_case.name }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{{ test_case.description|default:"No description" }}</p>
+      <div class="flex items-center gap-2 text-xs text-slate-400">
+        <span class="badge">{{ test_case.steps.count }} steps</span>
+        <span>Est. {{ test_case.estimated_duration }}s</span>
+      </div>
+    </a>
+  {% empty %}
+    <div class="card p-10 text-center col-span-full">
+      <h2 class="text-xl font-semibold mb-2">Design your first test</h2>
+      <p class="text-slate-500">Use the visual builder to assemble locators, actions, and assertions.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

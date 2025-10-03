@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} · Spectra{% endblock %}
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-semibold">{{ project.name }}</h1>
+      <p class="text-slate-500">{{ project.description|default:"Describe this project so your team knows what to test." }}</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="{% url 'testcases:list' project.organization.slug project.slug %}" class="button-secondary">Tests</a>
+      <a href="{% url 'suites:list' project.organization.slug project.slug %}" class="button-secondary">Suites</a>
+      <a href="{% url 'runs:list' project.organization.slug project.slug %}" class="button-secondary">Runs</a>
+      <a href="{% url 'analytics:project' project.organization.slug project.slug %}" class="button-secondary">Analytics</a>
+    </div>
+  </div>
+
+  <section class="card p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Environments</h2>
+      <a href="{% url 'projects:environment-create' project.organization.slug project.slug %}" class="button-primary text-sm">New environment</a>
+    </div>
+    <div class="grid gap-4 md:grid-cols-2">
+      {% for env in environments %}
+        <div class="card p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold">{{ env.name }}</p>
+              <p class="text-xs text-slate-500">{{ env.base_url }}</p>
+            </div>
+            <a href="{% url 'projects:environment-edit' project.organization.slug project.slug env.slug %}" class="text-sm text-indigo-500">Edit</a>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span class="badge">{{ env.variables|length }} variables</span>
+            <span class="badge">Concurrency ×{{ env.concurrency }}</span>
+          </div>
+        </div>
+      {% empty %}
+        <div class="border border-dashed border-slate-300 rounded-2xl p-6 text-center col-span-full">
+          <p class="text-sm text-slate-500">No environments yet. Create staging, production, or QA sandboxes.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

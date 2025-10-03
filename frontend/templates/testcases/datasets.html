@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Datasets · {{ project.name }}{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-semibold">Datasets</h1>
+    <p class="text-slate-500">Parameterize test runs with curated data sets.</p>
+  </div>
+  <a href="{% url 'testcases:dataset-create' project.organization.slug project.slug %}" class="button-primary">New dataset</a>
+</div>
+<div class="grid gap-6 mt-6">
+  {% for dataset in datasets %}
+    <div class="card p-5 space-y-2">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">{{ dataset.name }}</h2>
+        <a href="{% url 'testcases:dataset-edit' project.organization.slug project.slug dataset.slug %}" class="text-sm text-indigo-500">Edit</a>
+      </div>
+      <p class="text-sm text-slate-500">{{ dataset.description|default:"No description" }}</p>
+      <span class="badge">{{ dataset.data|length }} records</span>
+    </div>
+  {% empty %}
+    <div class="card p-10 text-center">
+      <h2 class="text-xl font-semibold mb-2">No datasets yet</h2>
+      <p class="text-slate-500">Upload CSV or define JSON arrays to power data-driven tests.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

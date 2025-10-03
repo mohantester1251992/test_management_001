@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}New Project · Spectra{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto card p-8 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold mb-2">Create a project</h1>
+    <p class="text-slate-500">Projects contain environments, tests, suites, and integrations.</p>
+  </div>
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="space-y-1">
+        <label class="block text-sm font-medium">{{ field.label }}{% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="text-xs text-slate-500">{{ field.help_text }}</p>{% endif %}
+        {% for error in field.errors %}<p class="text-sm text-rose-500">{{ error }}</p>{% endfor %}
+      </div>
+    {% endfor %}
+    <div class="flex justify-end gap-3">
+      <a href="{% url 'projects:list' %}" class="button-secondary">Cancel</a>
+      <button class="button-primary">Create project</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
